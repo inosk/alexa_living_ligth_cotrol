@@ -1,0 +1,25 @@
+name: Deploy to AWS lambda
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    name: Deploy aircon control to AWS lambda
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - run: chmod u+x *
+      - run: zip -r /tmp/living_light_control.zip *
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - run: pip3 install awscli
+      - run: aws lambda update-function-code --function-name living_light_control --zip-file fileb:///tmp/living_light_control.zip --publish
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-west-2
+
